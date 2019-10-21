@@ -38,23 +38,12 @@
 cmake-build-debug/
 \.idea/workspace\.xml
 \.idea/
-src/ledger/bin/
-src/ledger/debug/
-src/ledger/obj/
-src/goclient/vendor
-pkg/
-src/goclient/goclient
 
-src/ledger/pkgdemo/loaddemo\.sh
+obj/
+debug/
+bin/
 
-src/ledger/pkgdemo/app\.hex
+venv
 
-obj/app\.elf
-
-debug/app\.map
-
-debug/app\.asm
-
-bin/app\.hex
-
-bin/app\.elf
+.vscode
+.clang-format

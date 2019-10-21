@@ -25,8 +25,8 @@ SCRIPT_LD:=$(CURDIR)/script.ld
 include $(BOLOS_SDK)/Makefile.defines
 
 # Main app configuration
-APPNAME="Ledger Signer"
-APPVERSION_M=0
+APPNAME="WalletIo"
+APPVERSION_M=1
 APPVERSION_N=0
 APPVERSION_P=1
 
@@ -46,8 +46,12 @@ DEFINES   += APPVERSION=\"$(APPVERSION)\"
 DEFINES += OS_IO_SEPROXYHAL IO_SEPROXYHAL_BUFFER_SIZE_B=128
 DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=7 IO_HID_EP_LENGTH=64 HAVE_USB_APDU
 
-DEFINES += HAVE_BAGL HAVE_SPRINTF
+DEFINES += HAVE_BAGL
+DEFINES += HAVE_SPRINTF HAVE_PRINTF
+
 DEFINES += PRINTF\(...\)=
+# DEFINES += PRINTF=screen_printf
+
 DEFINES += HAVE_IO_USB HAVE_L4_USBLIB IO_USB_MAX_ENDPOINTS=7 IO_HID_EP_LENGTH=64 HAVE_USB_APDU
 
 DEFINES += LEDGER_MAJOR_VERSION=$(APPVERSION_M) LEDGER_MINOR_VERSION=$(APPVERSION_N) LEDGER_PATCH_VERSION=$(APPVERSION_P)
@@ -100,7 +104,7 @@ LDLIBS   += -lm -lgcc -lc
 
 ##########################
 
-APP_SOURCE_PATH += src deps/ledger-zxlib/include deps/ledger-zxlib/src
+APP_SOURCE_PATH += src deps/ledger-zxlib/include deps/ledger-zxlib/src deps/lib-coins-c/src
 SDK_SOURCE_PATH += lib_stusb lib_u2f lib_stusb_impl
 
 all: default
@@ -118,6 +122,9 @@ package:
 
 include $(BOLOS_SDK)/Makefile.rules
 #include $(BOLOS_SDK)/Makefile.glyphs
+
+# force append to INCLUDES_PATH
+INCLUDES_PATH += deps/lib-coins-c/src
 
 #add dependency on custom makefile filename
 dep/%.d: %.c Makefile.genericwallet

@@ -32,6 +32,6 @@ Manual installation steps:
    tar zxvf walletio.tar.gz ./bin
 
    pip install ledgerblue
-   python -m ledgerblue.loadApp --appFlags 0x00 --delete --tlv --targetId 0x31100004 --fileName ./bin/app.hex --appName "WalletIo" --appVersion 0.0.1 --icon 0100000000ffffff00ffffffffffffffffffff73ce3186218463ccc7f887f08ff1cff9ffffffffffff  
+   python -m ledgerblue.loadApp --appFlags 0x00 --delete --tlv --targetId 0x31100004 --fileName ./bin/app.hex --appName "WalletIo" --icon 0100000000ffffff00ffffffffffffffffffff73ce3186218463ccc7f887f08ff1cff9ffffffffffff --dataSize 0x00002740
    ```
    

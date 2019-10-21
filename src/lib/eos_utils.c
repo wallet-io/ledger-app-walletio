@@ -18,114 +18,6 @@
 #include "eos_utils.h"
 #include "os.h"
 
-
-unsigned char const BASE58ALPHABET[] = {
-    '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
-    'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W',
-    'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm',
-    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
-
-bool b58enc(uint8_t *bin, uint32_t binsz, char *b58, uint32_t *b58sz)
-{
-	int carry;
-	uint32_t i, j, high, zcount = 0;
-	uint32_t size;
-	
-	while (zcount < binsz && !bin[zcount])
-		++zcount;
-	
-	size = (binsz - zcount) * 138 / 100 + 1;
-	uint8_t buf[size];
-	os_memset(buf, 0, size);
-	
-	for (i = zcount, high = size - 1; i < binsz; ++i, high = j)
-	{
-		for (carry = bin[i], j = size - 1; (j > high) || carry; --j)
-		{
-			carry += 256 * buf[j];
-			buf[j] = carry % 58;
-			carry /= 58;
-			if (!j) {
-				// Otherwise j wraps to maxint which is > high
-				break;
-			}
-		}
-	}
-	
-	for (j = 0; j < size && !buf[j]; ++j);
-	
-	if (*b58sz <= zcount + size - j)
-	{
-		*b58sz = zcount + size - j + 1;
-		return false;
-	}
-	
-	if (zcount)
-		os_memset(b58, '1', zcount);
-	for (i = zcount; j < size; ++i, ++j)
-		b58[i] = BASE58ALPHABET[buf[j]];
-	b58[i] = '\0';
-	*b58sz = i + 1;
-	
-	return true;
-}
-
-unsigned char const hex_digits[] = {'0', '1', '2', '3', '4', '5', '6', '7',
-                                    '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-
-void array_hexstr(char *strbuf, const void *bin, unsigned int len) {
-    while (len--) {
-        *strbuf++ = hex_digits[((*((char *)bin)) >> 4) & 0xF];
-        *strbuf++ = hex_digits[(*((char *)bin)) & 0xF];
-        bin = (const void *)((unsigned int)bin + 1);
-    }
-    *strbuf = 0; // EOS
-}
-
-char const digit[] = "0123456789";
-char* i64toa(int64_t i, char b[]) {
-    char* p = b;
-    if(i<0){
-        *p++ = '-';
-        i *= -1;
-    }
-    int64_t shifter = i;
-    do{ //Move to where representation ends
-        ++p;
-        shifter = shifter/10;
-    }while(shifter);
-    *p = '\0';
-    do{ //Move back, inserting digits as u go
-        *--p = digit[i%10];
-        i = i/10;
-    }while(i);
-    return b;
-}
-
-char* ui64toa(uint64_t i, char b[]) {
-    char* p = b;
-    uint64_t shifter = i;
-    do{ //Move to where representation ends
-        ++p;
-        shifter = shifter/10;
-    }while(shifter);
-    *p = '\0';
-    do{ //Move back, inserting digits as u go
-        *--p = digit[i%10];
-        i = i/10;
-    }while(i);
-    return b;
-}
-
-/**
- * Decodes tag according to ASN1 standard.
-*/
-static void decodeTag(uint8_t byte, uint8_t *cls, uint8_t *type, uint8_t *nr) {
-    *cls = byte & 0xc0;
-    *type = byte & 0x20;
-    *nr = byte & 0x1f;
-}
-
 /**
  * Decoder supports only 'OctetString' from DER encoding.
  * To get more information about DER encoding go to
@@ -190,13 +82,8 @@ bool tlvTryDecode(uint8_t *buffer, uint32_t bufferLength, uint32_t *fieldLenght,
 /**
  * EOS way to check if a signature is canonical :/
 */
-unsigned char check_canonical(uint8_t *rs)
-{
-    return !(rs[0] & 0x80) 
-        && !(rs[0] == 0 
-        && !(rs[1] & 0x80)) 
-        && !(rs[32] & 0x80) 
-        && !(rs[32] == 0 && !(rs[33] & 0x80));
+unsigned char check_canonical(uint8_t *rs) {
+    return !(rs[0] & 0x80) && !(rs[0] == 0 && !(rs[1] & 0x80)) && !(rs[32] & 0x80) && !(rs[32] == 0 && !(rs[33] & 0x80)); 
 }
 
 int ecdsa_der_to_sig(const uint8_t *der, uint8_t *sig)
